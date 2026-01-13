@@ -3,18 +3,10 @@
 """
 QPanels Assets Package
 Custom panels for QPanels addon system
-"""
 
-bl_info = {
-    "name": "QPanels Assets",
-    "author": "Ryan Inch (Collection Manager), Adapted by Soee",
-    "version": (1, 0, 1),
-    "blender": (3, 4, 0),
-    "location": "Via QPanels Panel Selector",
-    "description": "Custom UI panels for QPanels - Advanced Outliner and more",
-    "warning": "Requires QPanels addon to function",
-    "category": "Interface",
-}
+This is NOT a Blender addon - it's a Python package imported by QPanels.
+Do not activate this in Blender preferences.
+"""
 
 if "bpy" in locals():
     import importlib
