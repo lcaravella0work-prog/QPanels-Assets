@@ -1,18 +1,19 @@
-# SPDX-FileCopyrightText: 2011 Ryan Inch
-#
-# SPDX-License-Identifier: GPL-2.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
+# This file is part of QPanels Assets - Collection Outliner
+# Original code from Collection Manager by Ryan Inch
+# Adapted for QPanels Assets by QPanels Team
 
 import bpy
 
-# For VARS
+# Import from internals
 from . import internals
-
-# For FUNCTIONS
 from .internals import (
     update_property_group,
     get_move_selection,
     get_move_active,
 )
+
+# =============== MODE CONVERTER ===============
 
 mode_converter = {
     'EDIT_MESH': 'EDIT',
@@ -34,8 +35,9 @@ mode_converter = {
     'SCULPT_GPENCIL': 'SCULPT_GPENCIL',
     'WEIGHT_GPENCIL': 'WEIGHT_GPENCIL',
     'VERTEX_GPENCIL': 'VERTEX_GPENCIL',
-    }
+}
 
+# =============== RTO CONFIGURATION ===============
 
 rto_path = {
     "exclude": "exclude",
@@ -45,38 +47,17 @@ rto_path = {
     "render": "collection.hide_render",
     "holdout": "holdout",
     "indirect": "indirect_only",
-    }
+}
 
 set_off_on = {
-    "exclude": {
-        "off": True,
-        "on": False
-        },
-    "select": {
-        "off": True,
-        "on": False
-        },
-    "hide": {
-        "off": True,
-        "on": False
-        },
-    "disable": {
-        "off": True,
-        "on": False
-        },
-    "render": {
-        "off": True,
-        "on": False
-        },
-    "holdout": {
-        "off": False,
-        "on": True
-        },
-    "indirect": {
-        "off": False,
-        "on": True
-        }
-    }
+    "exclude": {"off": True, "on": False},
+    "select": {"off": True, "on": False},
+    "hide": {"off": True, "on": False},
+    "disable": {"off": True, "on": False},
+    "render": {"off": True, "on": False},
+    "holdout": {"off": False, "on": True},
+    "indirect": {"off": False, "on": True}
+}
 
 get_off_on = {
     False: {
@@ -87,8 +68,7 @@ get_off_on = {
         "render": "on",
         "holdout": "off",
         "indirect": "off",
-        },
-
+    },
     True: {
         "exclude": "off",
         "select": "off",
@@ -97,30 +77,34 @@ get_off_on = {
         "render": "off",
         "holdout": "on",
         "indirect": "on",
-        }
     }
+}
 
+
+# =============== RTO GETTERS/SETTERS ===============
 
 def get_rto(layer_collection, rto):
+    """Get RTO state from layer collection."""
     if rto in ["exclude", "hide", "holdout", "indirect"]:
         return getattr(layer_collection, rto_path[rto])
-
     else:
         collection = getattr(layer_collection, "collection")
         return getattr(collection, rto_path[rto].split(".")[1])
 
 
 def set_rto(layer_collection, rto, value):
+    """Set RTO state on layer collection."""
     if rto in ["exclude", "hide", "holdout", "indirect"]:
         setattr(layer_collection, rto_path[rto], value)
-
     else:
         collection = getattr(layer_collection, "collection")
         setattr(collection, rto_path[rto].split(".")[1], value)
 
 
+# =============== RECURSIVE UTILITIES ===============
+
 def apply_to_children(parent, apply_function, *args, **kwargs):
-    # works for both Collections & LayerCollections
+    """Recursively apply a function to all children collections."""
     child_lists = [parent.children]
 
     while child_lists:
@@ -136,62 +120,60 @@ def apply_to_children(parent, apply_function, *args, **kwargs):
         child_lists = new_child_lists
 
 
+# =============== ISOLATION OPERATIONS ===============
+
 def isolate_rto(cls, self, view_layer, rto, *, children=False):
+    """Isolate a collection's RTO, or restore previous state."""
     off = set_off_on[rto]["off"]
     on = set_off_on[rto]["on"]
 
     laycol_ptr = internals.layer_collections[self.name]["ptr"]
-    target = internals.rto_history[rto][view_layer]["target"]
-    history = internals.rto_history[rto][view_layer]["history"]
+    target = internals.rto_history[rto][view_layer].get("target")
+    history = internals.rto_history[rto][view_layer].get("history", [])
 
-    # get active collections
+    # Get active collections
     active_layer_collections = [x["ptr"] for x in internals.layer_collections.values()
                                 if get_rto(x["ptr"], rto) == on]
 
-    # check if previous state should be restored
+    # Check if previous state should be restored
     if cls.isolated and self.name == target:
-        # restore previous state
+        # Restore previous state
         for x, item in enumerate(internals.layer_collections.values()):
             set_rto(item["ptr"], rto, history[x])
 
-        # reset target and history
+        # Reset target and history
         del internals.rto_history[rto][view_layer]
-
         cls.isolated = False
 
-    # check if all RTOs should be activated
+    # Check if all RTOs should be activated
     elif (len(active_layer_collections) == 1 and
           active_layer_collections[0].name == self.name):
-        # activate all collections
+        # Activate all collections
         for item in internals.layer_collections.values():
             set_rto(item["ptr"], rto, on)
 
-        # reset target and history
-        del internals.rto_history[rto][view_layer]
-
+        # Reset target and history
+        internals.rto_history[rto].pop(view_layer, None)
         cls.isolated = False
 
     else:
-        # isolate collection
+        # Isolate collection
+        internals.rto_history[rto][view_layer] = {"target": self.name, "history": []}
+        history = internals.rto_history[rto][view_layer]["history"]
 
-        internals.rto_history[rto][view_layer]["target"] = self.name
-
-        # reset history
-        history.clear()
-
-        # save state
+        # Save state
         for item in internals.layer_collections.values():
             history.append(get_rto(item["ptr"], rto))
 
         child_states = {}
         if children:
-            # get child states
+            # Get child states
             def get_child_states(layer_collection):
                 child_states[layer_collection.name] = get_rto(layer_collection, rto)
 
             apply_to_children(laycol_ptr, get_child_states)
 
-        # isolate collection
+        # Isolate collection
         for item in internals.layer_collections.values():
             if item["name"] != laycol_ptr.name:
                 set_rto(item["ptr"], rto, off)
@@ -199,14 +181,14 @@ def isolate_rto(cls, self, view_layer, rto, *, children=False):
         set_rto(laycol_ptr, rto, on)
 
         if rto not in ["exclude", "holdout", "indirect"]:
-            # activate all parents
+            # Activate all parents
             laycol = internals.layer_collections[self.name]
             while laycol["id"] != 0:
                 set_rto(laycol["ptr"], rto, on)
                 laycol = laycol["parent"]
 
             if children:
-                # restore child states
+                # Restore child states
                 def restore_child_states(layer_collection):
                     set_rto(layer_collection, rto, child_states[layer_collection.name])
 
@@ -214,14 +196,14 @@ def isolate_rto(cls, self, view_layer, rto, *, children=False):
 
         else:
             if children:
-                # restore child states
+                # Restore child states
                 def restore_child_states(layer_collection):
                     set_rto(layer_collection, rto, child_states[layer_collection.name])
 
                 apply_to_children(laycol_ptr, restore_child_states)
 
             elif rto == "exclude":
-                # deactivate all children
+                # Deactivate all children
                 def deactivate_all_children(layer_collection):
                     set_rto(layer_collection, rto, True)
 
@@ -230,7 +212,8 @@ def isolate_rto(cls, self, view_layer, rto, *, children=False):
         cls.isolated = True
 
 
-def isolate_sel_objs_collections(view_layer, rto, caller, *, use_active=False):
+def isolate_sel_objs_collections(view_layer, rto, *, use_active=False):
+    """Isolate collections containing selected objects."""
     selected_objects = get_move_selection()
 
     if use_active:
@@ -244,16 +227,16 @@ def isolate_sel_objs_collections(view_layer, rto, caller, *, use_active=False):
 
     history = internals.rto_history[rto+"_all"][view_layer]
 
-    # if not isolated, isolate collections of selected objects
+    # If not isolated, isolate collections of selected objects
     if len(history) == 0:
         keep_history = False
 
-        # save history and isolate RTOs
+        # Save history and isolate RTOs
         for item in internals.layer_collections.values():
             history.append(get_rto(item["ptr"], rto))
             rto_state = off
 
-            # check if any of the selected objects are in the collection
+            # Check if any selected objects are in the collection
             if not set(selected_objects).isdisjoint(item["ptr"].collection.objects):
                 rto_state = on
 
@@ -262,75 +245,73 @@ def isolate_sel_objs_collections(view_layer, rto, caller, *, use_active=False):
 
             if rto == "exclude":
                 set_exclude_state(item["ptr"], rto_state)
-
             else:
                 set_rto(item["ptr"], rto, rto_state)
 
-                # activate all parents if needed
+                # Activate all parents if needed
                 if rto_state == on and rto not in ["holdout", "indirect"]:
                     laycol = item["parent"]
                     while laycol["id"] != 0:
                         set_rto(laycol["ptr"], rto, on)
                         laycol = laycol["parent"]
 
-
         if not keep_history:
             history.clear()
-
             return "Collection already isolated"
 
-
     else:
+        # Restore state
         for x, item in enumerate(internals.layer_collections.values()):
             set_rto(item["ptr"], rto, history[x])
 
-        # clear history
+        # Clear history
         del internals.rto_history[rto+"_all"][view_layer]
 
 
-def disable_sel_objs_collections(view_layer, rto, caller):
+def disable_sel_objs_collections(view_layer, rto):
+    """Disable RTOs for collections containing selected objects."""
     off = set_off_on[rto]["off"]
-    on = set_off_on[rto]["on"]
     selected_objects = get_move_selection()
 
     history = internals.rto_history[rto+"_all"][view_layer]
 
     if not selected_objects and not history:
-        # clear history
         del internals.rto_history[rto+"_all"][view_layer]
-
         return "No selected objects"
 
-    # if not disabled, disable collections of selected objects
+    # If not disabled, disable collections of selected objects
     if len(history) == 0:
-        # save history and disable RTOs
+        # Save history and disable RTOs
         for item in internals.layer_collections.values():
             history.append(get_rto(item["ptr"], rto))
 
-            # check if any of the selected objects are in the collection
+            # Check if any selected objects are in the collection
             if not set(selected_objects).isdisjoint(item["ptr"].collection.objects):
                 if rto == "exclude":
                     set_exclude_state(item["ptr"], off)
-
                 else:
                     set_rto(item["ptr"], rto, off)
 
-
     else:
+        # Restore state
         for x, item in enumerate(internals.layer_collections.values()):
             set_rto(item["ptr"], rto, history[x])
 
-        # clear history
+        # Clear history
         del internals.rto_history[rto+"_all"][view_layer]
 
 
+# =============== TOGGLE OPERATIONS ===============
+
 def toggle_children(self, view_layer, rto):
+    """Toggle RTO state for collection and all children."""
     laycol_ptr = internals.layer_collections[self.name]["ptr"]
-    # clear rto history
-    del internals.rto_history[rto][view_layer]
+    
+    # Clear RTO history
+    internals.rto_history[rto].pop(view_layer, None)
     internals.rto_history[rto+"_all"].pop(view_layer, None)
 
-    # toggle rto state
+    # Toggle RTO state
     state = not get_rto(laycol_ptr, rto)
     set_rto(laycol_ptr, rto, state)
 
@@ -341,12 +322,13 @@ def toggle_children(self, view_layer, rto):
 
 
 def activate_all_rtos(view_layer, rto):
+    """Activate RTO for all collections, or restore previous state."""
     off = set_off_on[rto]["off"]
     on = set_off_on[rto]["on"]
 
     history = internals.rto_history[rto+"_all"][view_layer]
 
-    # if not activated, activate all
+    # If not activated, activate all
     if len(history) == 0:
         keep_history = False
 
@@ -355,7 +337,6 @@ def activate_all_rtos(view_layer, rto):
                 keep_history = True
 
             history.append(get_rto(item["ptr"], rto))
-
             set_rto(item["ptr"], rto, on)
 
         if not keep_history:
@@ -364,14 +345,16 @@ def activate_all_rtos(view_layer, rto):
         history.reverse()
 
     else:
+        # Restore state
         for x, item in enumerate(internals.layer_collections.values()):
             set_rto(item["ptr"], rto, history[x])
 
-        # clear rto history
+        # Clear RTO history
         del internals.rto_history[rto+"_all"][view_layer]
 
 
 def invert_rtos(view_layer, rto):
+    """Invert RTO state for all collections."""
     if rto == "exclude":
         orig_values = []
 
@@ -385,84 +368,66 @@ def invert_rtos(view_layer, rto):
         for item in internals.layer_collections.values():
             set_rto(item["ptr"], rto, not get_rto(item["ptr"], rto))
 
-    # clear rto history
+    # Clear RTO history
     internals.rto_history[rto].pop(view_layer, None)
 
 
+# =============== COPY/PASTE OPERATIONS ===============
+
 def copy_rtos(view_layer, rto):
+    """Copy RTO state, or paste if already copied."""
     if not internals.copy_buffer["RTO"]:
-        # copy
+        # Copy
         internals.copy_buffer["RTO"] = rto
         for laycol in internals.layer_collections.values():
-            internals.copy_buffer["values"].append(get_off_on[
-                                            get_rto(laycol["ptr"], rto)
-                                            ][
-                                            rto
-                                            ]
-                                        )
+            internals.copy_buffer["values"].append(
+                get_off_on[get_rto(laycol["ptr"], rto)][rto]
+            )
 
     else:
-        # paste
+        # Paste
         for x, laycol in enumerate(internals.layer_collections.values()):
-            set_rto(laycol["ptr"],
-                    rto,
-                    set_off_on[rto][
-                        internals.copy_buffer["values"][x]
-                        ]
-                    )
+            set_rto(laycol["ptr"], rto,
+                   set_off_on[rto][internals.copy_buffer["values"][x]])
 
-        # clear rto history
+        # Clear RTO history
         internals.rto_history[rto].pop(view_layer, None)
-        del internals.rto_history[rto+"_all"][view_layer]
+        internals.rto_history[rto+"_all"].pop(view_layer, None)
 
-        # clear copy buffer
+        # Clear copy buffer
         internals.copy_buffer["RTO"] = ""
         internals.copy_buffer["values"].clear()
 
 
 def swap_rtos(view_layer, rto):
+    """Swap two RTO states."""
     if not internals.swap_buffer["A"]["values"]:
-        # get A
+        # Get A
         internals.swap_buffer["A"]["RTO"] = rto
         for laycol in internals.layer_collections.values():
-            internals.swap_buffer["A"]["values"].append(get_off_on[
-                                                get_rto(laycol["ptr"], rto)
-                                                ][
-                                                rto
-                                                ]
-                                            )
+            internals.swap_buffer["A"]["values"].append(
+                get_off_on[get_rto(laycol["ptr"], rto)][rto]
+            )
 
     else:
-        # get B
+        # Get B
         internals.swap_buffer["B"]["RTO"] = rto
         for laycol in internals.layer_collections.values():
-            internals.swap_buffer["B"]["values"].append(get_off_on[
-                                                get_rto(laycol["ptr"], rto)
-                                                ][
-                                                rto
-                                                ]
-                                            )
+            internals.swap_buffer["B"]["values"].append(
+                get_off_on[get_rto(laycol["ptr"], rto)][rto]
+            )
 
-        # swap A with B
+        # Swap A with B
         for x, laycol in enumerate(internals.layer_collections.values()):
             set_rto(laycol["ptr"], internals.swap_buffer["A"]["RTO"],
-                    set_off_on[
-                        internals.swap_buffer["A"]["RTO"]
-                        ][
-                        internals.swap_buffer["B"]["values"][x]
-                        ]
-                    )
+                   set_off_on[internals.swap_buffer["A"]["RTO"]][
+                       internals.swap_buffer["B"]["values"][x]])
 
             set_rto(laycol["ptr"], internals.swap_buffer["B"]["RTO"],
-                    set_off_on[
-                        internals.swap_buffer["B"]["RTO"]
-                        ][
-                        internals.swap_buffer["A"]["values"][x]
-                        ]
-                    )
+                   set_off_on[internals.swap_buffer["B"]["RTO"]][
+                       internals.swap_buffer["A"]["values"][x]])
 
-
-        # clear rto history
+        # Clear RTO history
         swap_a = internals.swap_buffer["A"]["RTO"]
         swap_b = internals.swap_buffer["B"]["RTO"]
 
@@ -471,7 +436,7 @@ def swap_rtos(view_layer, rto):
         internals.rto_history[swap_b].pop(view_layer, None)
         internals.rto_history[swap_b+"_all"].pop(view_layer, None)
 
-        # clear swap buffer
+        # Clear swap buffer
         internals.swap_buffer["A"]["RTO"] = ""
         internals.swap_buffer["A"]["values"].clear()
         internals.swap_buffer["B"]["RTO"] = ""
@@ -479,12 +444,14 @@ def swap_rtos(view_layer, rto):
 
 
 def clear_copy(rto):
+    """Clear copy buffer if it matches the RTO."""
     if internals.copy_buffer["RTO"] == rto:
         internals.copy_buffer["RTO"] = ""
         internals.copy_buffer["values"].clear()
 
 
 def clear_swap(rto):
+    """Clear swap buffer if it matches the RTO."""
     if internals.swap_buffer["A"]["RTO"] == rto:
         internals.swap_buffer["A"]["RTO"] = ""
         internals.swap_buffer["A"]["values"].clear()
@@ -492,27 +459,31 @@ def clear_swap(rto):
         internals.swap_buffer["B"]["values"].clear()
 
 
+# =============== COLLECTION MANAGEMENT ===============
+
 def link_child_collections_to_parent(laycol, collection, parent_collection):
-    # store view layer RTOs for all children of the to be deleted collection
+    """Link child collections to parent before deletion."""
+    # Store view layer RTOs for all children
     child_states = {}
+    
     def get_child_states(layer_collection):
-        child_states[layer_collection.name] = (layer_collection.exclude,
-                                               layer_collection.hide_viewport,
-                                               layer_collection.holdout,
-                                               layer_collection.indirect_only)
+        child_states[layer_collection.name] = (
+            layer_collection.exclude,
+            layer_collection.hide_viewport,
+            layer_collection.holdout,
+            layer_collection.indirect_only
+        )
 
     apply_to_children(laycol["ptr"], get_child_states)
 
-    # link any subcollections of the to be deleted collection to it's parent
+    # Link subcollections to parent
     for subcollection in collection.children:
-        if not subcollection.name in parent_collection.children:
+        if subcollection.name not in parent_collection.children:
             parent_collection.children.link(subcollection)
 
-    # apply the stored view layer RTOs to the newly linked collections and their
-    # children
+    # Restore view layer RTOs
     def restore_child_states(layer_collection):
         state = child_states.get(layer_collection.name)
-
         if state:
             layer_collection.exclude = state[0]
             layer_collection.hide_viewport = state[1]
@@ -523,14 +494,15 @@ def link_child_collections_to_parent(laycol, collection, parent_collection):
 
 
 def remove_collection(laycol, collection, context):
-    # get selected row
-    qpo = context.scene.qpanel_outliner
-    selected_row_name = qpo.qpo_list_collection[qpo.qpo_list_index].name
+    """Remove collection and update references."""
+    # Get selected row
+    cm = context.scene.collection_manager
+    selected_row_name = cm.cm_list_collection[cm.cm_list_index].name
 
-    # delete collection
+    # Delete collection
     bpy.data.collections.remove(collection)
 
-    # update references
+    # Update references
     internals.expanded.discard(laycol["name"])
 
     if internals.expand_history["target"] == laycol["name"]:
@@ -539,37 +511,36 @@ def remove_collection(laycol, collection, context):
     if laycol["name"] in internals.expand_history["history"]:
         internals.expand_history["history"].remove(laycol["name"])
 
-    # reset history
+    # Reset history
     for rto in internals.rto_history.values():
         rto.clear()
 
-    # update tree view
+    # Update tree view
     update_property_group(context)
 
-    # update selected row
+    # Update selected row
     laycol = internals.layer_collections.get(selected_row_name, None)
     if laycol:
-        qpo.qpo_list_index = laycol["row_index"]
+        cm.cm_list_index = laycol["row_index"]
+    elif len(cm.cm_list_collection) <= cm.cm_list_index:
+        cm.cm_list_index = len(cm.cm_list_collection) - 1
 
-    elif len(qpo.qpo_list_collection) <= qpo.qpo_list_index:
-        qpo.qpo_list_index =  len(qpo.qpo_list_collection) - 1
-
-        if qpo.qpo_list_index > -1:
-            name = qpo.qpo_list_collection[qpo.qpo_list_index].name
+        if cm.cm_list_index > -1:
+            name = cm.cm_list_collection[cm.cm_list_index].name
             laycol = internals.layer_collections[name]
             while not laycol["visible"]:
                 laycol = laycol["parent"]
 
-            qpo.qpo_list_index = laycol["row_index"]
+            cm.cm_list_index = laycol["row_index"]
 
 
 def select_collection_objects(is_master_collection, collection_name, replace, nested, selection_state=None):
+    """Select objects in a collection."""
     if bpy.context.mode != 'OBJECT':
         return
 
     if is_master_collection:
         target_collection = bpy.context.view_layer.layer_collection.collection
-
     else:
         laycol = internals.layer_collections[collection_name]
         target_collection = laycol["ptr"].collection
@@ -577,7 +548,7 @@ def select_collection_objects(is_master_collection, collection_name, replace, ne
     if replace:
         bpy.ops.object.select_all(action='DESELECT')
 
-    if selection_state == None:
+    if selection_state is None:
         selection_state = get_move_selection().isdisjoint(target_collection.objects)
 
     def select_objects(collection, selection_state):
@@ -592,8 +563,10 @@ def select_collection_objects(is_master_collection, collection_name, replace, ne
     if nested:
         apply_to_children(target_collection, select_objects, selection_state)
 
+
 def set_exclude_state(target_layer_collection, state):
-    # get current child exclusion state
+    """Set exclusion state while preserving children state."""
+    # Get current child exclusion state
     child_exclusion = []
 
     def get_child_exclusion(layer_collection):
@@ -601,11 +574,9 @@ def set_exclude_state(target_layer_collection, state):
 
     apply_to_children(target_layer_collection, get_child_exclusion)
 
-
-    # set exclusion
+    # Set exclusion
     target_layer_collection.exclude = state
 
-
-    # set correct state for all children
+    # Restore correct state for all children
     for laycol in child_exclusion:
         laycol[0].exclude = laycol[1]

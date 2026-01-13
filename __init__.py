@@ -1,59 +1,27 @@
-﻿# SPDX-License-Identifier: GPL-2.0-or-later
+﻿"""
+QPanels Assets - Extension Package for QPanels
+Provides additional panels for QPanels Core add-on
 
-"""
-QPanels Assets Package
-Custom panels for QPanels addon system
-
-This is NOT a Blender addon - it's a Python package imported by QPanels.
-Do not activate this in Blender preferences.
+This is NOT a standalone Blender add-on.
+It must be used with QPanels Core (v6.2.0+)
 """
 
-if "bpy" in locals():
-    import importlib
-    if "outliner" in locals():
-        importlib.reload(outliner)
-else:
-    from . import outliner
+bl_info = {
+    "name": "QPanels Assets",
+    "author": "QPanels Team",
+    "version": (1, 0, 0),
+    "blender": (3, 4, 0),
+    "description": "Additional panels for QPanels",
+    "category": "Interface",
+}
 
-import bpy
-
-
-def get_custom_panels():
-    """
-    Return a dictionary of custom panels for QPanels.
-    
-    Returns:
-        dict: Dictionary with panel_id as key and panel info as value
-        Format: {
-            "panel_id": {
-                "module": module_reference,
-                "operator": "operator.idname",
-                "label": "Display Name",
-                "icon": "ICON_NAME",
-                "description": "Panel description"
-            }
-        }
-    """
-    return {
-        "qpanel_outliner": {
-            "module": outliner,
-            "operator": "qpanel_outliner.open_outliner",
-            "label": "QPanels Outliner",
-            "icon": "OUTLINER",
-            "description": "Advanced collection manager with restriction toggles and phantom mode"
-        }
-    }
-
+# Import panels module for registration
+from . import panels
 
 def register():
-    """Register all custom panels"""
-    outliner.register()
-
+    """Register all QPanels Assets panels"""
+    panels.register()
 
 def unregister():
-    """Unregister all custom panels"""
-    outliner.unregister()
-
-
-if __name__ == "__main__":
-    register()
+    """Unregister all QPanels Assets panels"""
+    panels.unregister()

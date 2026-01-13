@@ -1,19 +1,16 @@
 {
-    "version": "1.0.2",
-    "release_date": "2026-01-13",
-    "changelog": [
-        "Fixed: Removed bl_info (Assets is NOT an addon)",
-        "Fixed: UTF-8 BOM encoding issue causing JSON read errors",
-        "Fixed: Corrected all QPanel to QPanels (with S)",
-        "Fixed: Updated get_custom_panels() API with full metadata",
-        "Improved: No Blender restart needed after installation"
-    ],
-    "panels": [
-        {
-            "id": "qpanel_outliner",
-            "name": "QPanels Outliner",
-            "version": "1.0.2",
-            "description": "Advanced collection manager for Blender"
-        }
-    ]
+  "version": "1.0.0",
+  "blender_min_version": "3.4.0",
+  "qpanels_min_version": "6.2.0",
+  "sha256": "5969977546e2e9b4e57d8dd1760a0b580b7b4567d048414142b3b78bb97667fe",
+  "changelog": "Initial release with Outliner panel (Collection Manager-inspired)",
+  "panels": [
+    {
+      "name": "Outliner",
+      "bl_idname": "qpanel_assets.outliner",
+      "description": "Manage Blender collections in a popup (inspired by Collection Manager)",
+      "category": "QPanels Assets",
+      "version": "1.0.0"
+    }
+  ]
 }
