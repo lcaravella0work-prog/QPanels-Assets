@@ -2,7 +2,7 @@
     "version":  "1.0.0",
     "blender_min_version":  "3.4.0",
     "qpanels_min_version":  "6.2.0",
-    "sha256":  "a5cb89636b36c9203e937f99e769bacfc71ee85953b58b2419a7acc3aa87dbc6",
+    "sha256":  "205d0e715f07c3951ebadc40d10e3ba30f3fff92b879c41ed565cbe9ebb4781d",
     "changelog":  "Initial release with Outliner panel (Collection Manager-inspired)",
     "panels":  [
                    {
