@@ -1,11 +1,12 @@
 """
 Update SHA256 Checksum for QPanels Assets
-Calculates SHA256 of the package and updates version.json
+Downloads the actual GitHub ZIP and calculates its SHA256
 """
 
 import hashlib
 import json
-import zipfile
+import urllib.request
+import tempfile
 import os
 from pathlib import Path
 
@@ -18,27 +19,33 @@ def calculate_sha256(file_path):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def create_package_zip(source_dir, output_path):
-    """Create ZIP package of QPanels Assets."""
-    print(f"Creating package: {output_path}")
+def download_github_zip(url, output_path):
+    """Download ZIP from GitHub."""
+    print(f"Downloading from GitHub: {url}")
     
-    with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for root, dirs, files in os.walk(source_dir):
-            # Skip certain directories
-            skip_dirs = {'.git', '__pycache__', '.vscode', 'scripts'}
-            dirs[:] = [d for d in dirs if d not in skip_dirs]
+    try:
+        with urllib.request.urlopen(url) as response:
+            total_size = int(response.headers.get('Content-Length', 0))
+            downloaded = 0
             
-            for file in files:
-                # Skip certain files
-                if file.endswith(('.pyc', '.pyo', '.git', '.gitignore')):
-                    continue
-                
-                file_path = os.path.join(root, file)
-                arcname = os.path.relpath(file_path, source_dir)
-                print(f"  Adding: {arcname}")
-                zipf.write(file_path, arcname)
-    
-    print(f"✅ Package created: {output_path}")
+            with open(output_path, 'wb') as f:
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    
+                    if total_size > 0:
+                        percent = (downloaded / total_size) * 100
+                        print(f"  Progress: {percent:.1f}% ({downloaded}/{total_size} bytes)", end='\r')
+        
+        print(f"\n✅ Download complete: {output_path}")
+        return True
+        
+    except Exception as e:
+        print(f"❌ Download failed: {e}")
+        return False
 
 def update_version_json(version_file, sha256_hash):
     """Update version.json with new SHA256 hash."""
@@ -55,46 +62,55 @@ def update_version_json(version_file, sha256_hash):
     print(f"✅ version.json updated with SHA256: {sha256_hash}")
 
 def main():
-    """Main workflow: Create ZIP → Calculate SHA256 → Update version.json"""
+    """Main workflow: Download GitHub ZIP → Calculate SHA256 → Update version.json"""
     
     # Paths
     repo_root = Path(__file__).parent.parent
-    package_dir = repo_root
-    temp_zip = repo_root.parent / "qpanel-assets-temp.zip"
     version_file = repo_root / "version.json"
+    
+    # GitHub URL for main.zip
+    github_url = "https://github.com/lcaravella0work-prog/QPanels-Assets/archive/refs/heads/main.zip"
+    
+    # Temporary file for download
+    temp_zip = tempfile.mktemp(suffix='.zip', prefix='qpanels-assets-')
     
     print("=" * 60)
     print("QPanels Assets - SHA256 Update Script")
     print("=" * 60)
     print(f"Repository: {repo_root}")
-    print(f"Package ZIP: {temp_zip}")
+    print(f"GitHub URL: {github_url}")
     print(f"Version file: {version_file}")
     print("=" * 60)
     
-    # Step 1: Create package ZIP
-    create_package_zip(package_dir, temp_zip)
-    
-    # Step 2: Calculate SHA256
-    print(f"\nCalculating SHA256 hash...")
-    sha256_hash = calculate_sha256(temp_zip)
-    print(f"SHA256: {sha256_hash}")
-    
-    # Step 3: Update version.json
-    update_version_json(version_file, sha256_hash)
-    
-    # Step 4: Cleanup temp ZIP
-    print(f"\nCleaning up temporary files...")
-    temp_zip.unlink()
-    print(f"✅ Removed: {temp_zip}")
-    
-    print("\n" + "=" * 60)
-    print("✅ SHA256 update complete!")
-    print("=" * 60)
-    print("\nNext steps:")
-    print("1. Review changes in version.json")
-    print("2. Commit and push to GitHub")
-    print("3. QPanels will detect the new version")
-    print("=" * 60)
+    try:
+        # Step 1: Download GitHub ZIP
+        if not download_github_zip(github_url, temp_zip):
+            print("\n❌ Failed to download GitHub ZIP")
+            return
+        
+        # Step 2: Calculate SHA256
+        print(f"\nCalculating SHA256 hash...")
+        sha256_hash = calculate_sha256(temp_zip)
+        print(f"SHA256: {sha256_hash}")
+        
+        # Step 3: Update version.json
+        update_version_json(version_file, sha256_hash)
+        
+        print("\n" + "=" * 60)
+        print("✅ SHA256 update complete!")
+        print("=" * 60)
+        print("\nNext steps:")
+        print("1. Review changes in version.json")
+        print("2. Run: git add version.json")
+        print("3. Run: git commit -m 'Update SHA256 checksum'")
+        print("4. Run: git push origin main")
+        print("=" * 60)
+        
+    finally:
+        # Cleanup temp file
+        if os.path.exists(temp_zip):
+            os.unlink(temp_zip)
+            print(f"\n🗑️  Cleaned up: {temp_zip}")
 
 if __name__ == "__main__":
     main()
