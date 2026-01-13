@@ -2,7 +2,7 @@
     "version":  "1.0.0",
     "blender_min_version":  "3.4.0",
     "qpanels_min_version":  "6.2.0",
-    "sha256":  "205d0e715f07c3951ebadc40d10e3ba30f3fff92b879c41ed565cbe9ebb4781d",
+    "sha256":  "0b4dffbd175762f3eefd3bab78ba51eb411eaef54b2f0fd43e9c2501ee028fd5",
     "changelog":  "Initial release with Outliner panel (Collection Manager-inspired)",
     "panels":  [
                    {
@@ -12,5 +12,7 @@
                        "category":  "QPanels Assets",
                        "version":  "1.0.0"
                    }
-               ]
+               ],
+    "download_url":  "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v1.0.0/qpanel-assets-v1.0.0.zip",
+    "size":  30041
 }
