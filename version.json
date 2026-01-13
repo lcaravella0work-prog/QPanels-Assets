@@ -1,14 +1,17 @@
-{
-    "version": "1.0.0",
+﻿{
+    "version": "1.0.1",
     "release_date": "2026-01-13",
     "changelog": [
-        "Initial release with QPanel Outliner"
+        "Fixed: Missing bl_info causing Blender warnings",
+        "Fixed: Corrected all 'QPanel' to 'QPanels' (with S)",
+        "Fixed: Updated get_custom_panels() API with full metadata",
+        "Improved: Better integration with QPanels Panel Selector"
     ],
     "panels": [
         {
             "id": "qpanel_outliner",
-            "name": "QPanel Outliner",
-            "version": "1.0.0",
+            "name": "QPanels Outliner",
+            "version": "1.0.1",
             "description": "Advanced collection manager for Blender"
         }
     ]
