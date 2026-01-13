@@ -1,5 +1,5 @@
 ﻿{
-    "version":  "2.0.1",
+    "version":  "2.1.0",
     "blender_min_version":  "3.4.0",
     "qpanels_min_version":  "6.2.0",
     "sha256":  "fdad9f56f501eafea5eddb9c84d43b84b8387a1dea282bb617c0b4e191fa3262",
@@ -13,6 +13,6 @@
                        "version":  "1.0.0"
                    }
                ],
-    "download_url":  "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.0.1/qpanel-assets-v2.0.1.zip",
+    "download_url":  "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.0/qpanel-assets-v2.1.0.zip",
     "size":  38101
 }
