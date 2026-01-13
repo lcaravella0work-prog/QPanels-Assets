@@ -1,0 +1,15 @@
+{
+    "version": "1.0.0",
+    "release_date": "2026-01-13",
+    "changelog": [
+        "Initial release with QPanel Outliner"
+    ],
+    "panels": [
+        {
+            "id": "qpanel_outliner",
+            "name": "QPanel Outliner",
+            "version": "1.0.0",
+            "description": "Advanced collection manager for Blender"
+        }
+    ]
+}
