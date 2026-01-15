@@ -1,3 +1,17 @@
+## [2.1.1] - 2026-01-15
+
+###  Fixed
+- **CRITICAL**: Added class name alias `QPANEL_ASSET_OT_outliner` in `panels/outliner/ui.py`
+  - Fixes ImportError: `cannot import name 'QPANEL_ASSET_OT_outliner'`
+  - The actual class is `QPANEL_ASSET_OT_collection_outliner`, alias ensures compatibility
+  - Resolves red Install button issue in QPanels UI
+
+###  Changed
+- Lowered `qpanels_min_version` from 6.2.0 to 6.1.19 for broader compatibility
+- Panel Outliner version bumped to 1.0.1
+
+---
+
 # Changelog - QPanels Assets
 
 All notable changes to QPanels Assets will be documented in this file.
@@ -85,3 +99,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Repository:** [QPanels-Assets](https://github.com/lcaravella0work-prog/QPanels-Assets)  
 **Documentation:** [QPANELS_ASSETS_ARCHITECTURE.md](https://github.com/lcaravella0work-prog/QPanels-Core/blob/main/docs/QPANELS_ASSETS_ARCHITECTURE.md)  
 **License:** GPL-3.0-or-later
+

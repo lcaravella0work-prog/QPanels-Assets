@@ -369,3 +369,16 @@ def unregister():
     
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
+
+
+# =============== ALIAS FOR BACKWARDS COMPATIBILITY ===============
+
+# The main class name is QPANEL_ASSET_OT_collection_outliner
+# but panels/__init__.py expects QPANEL_ASSET_OT_outliner
+# Create an alias to maintain compatibility
+
+QPANEL_ASSET_OT_outliner = QPANEL_ASSET_OT_collection_outliner
+
+# This allows both names to work:
+# - New code can use QPANEL_ASSET_OT_collection_outliner (descriptive)
+# - Old imports still work with QPANEL_ASSET_OT_outliner (short name)

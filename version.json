@@ -1,18 +1,18 @@
-﻿{
-    "version":  "2.1.0",
-    "blender_min_version":  "3.4.0",
-    "qpanels_min_version":  "6.2.0",
-    "sha256":  "fdad9f56f501eafea5eddb9c84d43b84b8387a1dea282bb617c0b4e191fa3262",
-    "changelog":  "Initial release with Outliner panel (Collection Manager-inspired)",
-    "panels":  [
-                   {
-                       "name":  "Outliner",
-                       "bl_idname":  "qpanel_assets.outliner",
-                       "description":  "Manage Blender collections in a popup (inspired by Collection Manager)",
-                       "category":  "QPanels Assets",
-                       "version":  "1.0.0"
-                   }
-               ],
-    "download_url":  "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.0/qpanel-assets-v2.1.0.zip",
-    "size":  38101
+{
+    "version": "2.1.1",
+    "blender_min_version": "3.4.0",
+    "qpanels_min_version": "6.1.19",
+    "sha256": "PLACEHOLDER_WILL_BE_UPDATED_BY_SCRIPT",
+    "changelog": "HOTFIX: Added class name alias to fix import error (QPANEL_ASSET_OT_outliner). Lowered min QPanels version to 6.1.19 for compatibility.",
+    "panels": [
+        {
+            "name": "Outliner",
+            "bl_idname": "qpanels_assets.outliner",
+            "description": "Manage Blender collections in a popup (inspired by Collection Manager)",
+            "category": "QPanels Assets",
+            "version": "1.0.1"
+        }
+    ],
+    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.1/qpanel-assets-v2.1.1.zip",
+    "size": 0
 }
