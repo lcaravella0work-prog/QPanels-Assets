@@ -371,6 +371,39 @@ def unregister():
         bpy.utils.unregister_class(cls)
 
 
+# =============== PANEL WRAPPER FOR QPANELS INTEGRATION ===============
+
+class QPANEL_ASSET_PT_outliner(Panel):
+    """Collection Outliner - QPanels Assets Panel
+    
+    This Panel wrapper enables detection by QPanels Panel Selector.
+    QPanels requires bpy.types.Panel subclasses with bl_qpanel_category attribute.
+    The actual UI implementation is delegated to the Operator for code reuse.
+    """
+    bl_label = "Collection Outliner"
+    bl_idname = "QPANEL_ASSET_PT_outliner"
+    
+    # QPanels Assets category marker (required for Panel Selector detection)
+    bl_qpanel_category = "OUTLINER"
+    
+    # Blender panel requirements
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'WINDOW'  # Popup-only, hidden from sidebars
+    
+    @classmethod
+    def poll(cls, context):
+        """Panel is available in 3D View context"""
+        return context.space_data.type == 'VIEW_3D'
+    
+    def draw(self, context):
+        """Delegate drawing to the Operator implementation"""
+        layout = self.layout
+        
+        # Reuse Operator's draw() method to avoid code duplication
+        op_instance = QPANEL_ASSET_OT_collection_outliner()
+        op_instance.draw(context)
+
+
 # =============== ALIAS FOR BACKWARDS COMPATIBILITY ===============
 
 # The main class name is QPANEL_ASSET_OT_collection_outliner

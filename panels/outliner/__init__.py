@@ -25,7 +25,8 @@ from .internals import (
 )
 
 from .ui import (
-    QPANEL_ASSET_OT_outliner,
+    QPANEL_ASSET_PT_outliner,  # Panel wrapper for QPanels integration
+    QPANEL_ASSET_OT_outliner,  # Operator implementation
     QPANEL_ASSET_UL_collection_tree,
     CollectionManagerProperties,
 )
@@ -48,6 +49,9 @@ from .operators import (
 __all__ = [
     # PropertyGroups (must be registered first)
     "CMListCollection",
+    
+    # Panel wrapper (QPanels integration)
+    "QPANEL_ASSET_PT_outliner",
     
     # Main popup operator
     "QPANEL_ASSET_OT_outliner",

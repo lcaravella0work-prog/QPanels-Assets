@@ -14,8 +14,11 @@ classes = (
     # PropertyGroups (register first)
     outliner.CMListCollection,  # Required by CollectionManagerProperties.cm_list_collection
     
-    # Outliner panel classes
-    outliner.QPANEL_ASSET_OT_outliner,
+    # Panel classes (for QPanels Panel Selector detection)
+    outliner.QPANEL_ASSET_PT_outliner,  # Panel wrapper - enables QPanels detection
+    
+    # Outliner operator classes
+    outliner.QPANEL_ASSET_OT_outliner,  # Operator implementation - standalone usage
     outliner.QPANEL_ASSET_OT_set_active_collection,
     outliner.QPANEL_ASSET_OT_expand_all,
     outliner.QPANEL_ASSET_OT_expand_sublevel,

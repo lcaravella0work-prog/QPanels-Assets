@@ -1,3 +1,32 @@
+## [2.1.4] - 2026-01-15
+
+### 🔥 Fixed - CRITICAL PANEL DETECTION
+- **ROOT CAUSE IDENTIFIED**: Outliner was an Operator (`QPANEL_ASSET_OT_outliner`), not a Panel
+  - QPanels Panel Selector **only detects `bpy.types.Panel` subclasses** via `issubclass()` introspection
+  - Console showed `Panel classes before: 1235 → after: 1235` (diff = 0, no Panel registered)
+  - Result: Outliner invisible in Panel Selector despite successful installation
+
+### ✅ Added
+- **NEW**: `QPANEL_ASSET_PT_outliner` (Panel wrapper class)
+  - Inherits from `bpy.types.Panel` (required for QPanels detection)
+  - Attributes: `bl_qpanel_category = "OUTLINER"`, `bl_region_type = 'WINDOW'`
+  - Method `draw()` delegates to existing Operator implementation (no code duplication)
+  - Location: `panels/outliner/ui.py`
+
+### 🔧 Changed
+- **KEPT**: `QPANEL_ASSET_OT_outliner` (Operator) for standalone usage
+  - Still works with `wm.invoke_popup()` for direct calls
+  - UI implementation unchanged (200+ lines)
+- **Registration order**: Panel registered BEFORE Operator in `panels/__init__.py`
+- **Exports**: Added `QPANEL_ASSET_PT_outliner` to `panels/outliner/__init__.py`
+
+### 📊 Expected Result
+- Console: `Panel classes before: 1235 → after: 1236` (diff = +1)
+- Panel Selector: `🌳 OUTLINER > Collection Outliner` now visible
+- Pattern: Dual implementation (Panel wrapper + Operator) for maximum compatibility
+
+---
+
 ## [2.1.1] - 2026-01-15
 
 ###  Fixed
