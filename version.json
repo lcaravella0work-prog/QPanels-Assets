@@ -1,18 +1,102 @@
 {
-    "version": "2.1.5",
+    "version": "2.1.6",
     "blender_min_version": "3.4.0",
     "qpanels_min_version": "6.1.19",
-    "sha256": "a6732964d18abba828920d24f8f00cb156428b49cbe0ccdb3f2ac9a7e0204f72",
-    "changelog": "FIX CRITIQUE v2.1.5: Correction erreur bpy_struct instanciation. Extraction code UI dans fonction helper partagée draw_collection_outliner_ui() - Panel et Operator utilisent maintenant la même fonction (zéro duplication, architecture propre).",
+    "sha256": "ec6de2659e8e31511588c94a6ff48e48fc23d6fba61f3a5d480445bb8540b1fc",
+    "release_date": "2026-01-15",
+    "changelog": "🔄 RESTORATION: v5.4.0 Functional Panels\n\n✅ RESTORED: 19 panels (properties + space)\n⚠️ ARCHIVED: Outliner Collection Manager\n🎯 COMMERCIAL READY",
     "panels": [
         {
-            "name": "Outliner",
-            "bl_idname": "qpanels_assets.outliner",
-            "description": "Manage Blender collections in a popup (inspired by Collection Manager)",
-            "category": "QPanels Assets",
-            "version": "1.0.1"
+            "name": "Properties",
+            "description": "Main properties panel",
+            "category": "Properties"
+        },
+        {
+            "name": "Armature Properties",
+            "description": "Armature data properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Camera Properties",
+            "description": "Camera data properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Curve Properties",
+            "description": "Curve data properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Light Properties",
+            "description": "Light data properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Mesh Properties",
+            "description": "Mesh data properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Particle Properties",
+            "description": "Particle system properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Physics Properties",
+            "description": "Physics simulation properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Render Properties",
+            "description": "Render settings",
+            "category": "Rendering"
+        },
+        {
+            "name": "Scene Properties",
+            "description": "Scene settings",
+            "category": "Scene"
+        },
+        {
+            "name": "Texture Properties",
+            "description": "Texture properties",
+            "category": "Properties"
+        },
+        {
+            "name": "Dope Sheet",
+            "description": "Animation timeline",
+            "category": "Animation"
+        },
+        {
+            "name": "Graph Editor",
+            "description": "Animation curves",
+            "category": "Animation"
+        },
+        {
+            "name": "Image Editor",
+            "description": "UV/Image editor",
+            "category": "Textures"
+        },
+        {
+            "name": "NLA Editor",
+            "description": "Non-linear animation",
+            "category": "Animation"
+        },
+        {
+            "name": "Node Editor",
+            "description": "Shader/Geometry nodes",
+            "category": "Shading"
+        },
+        {
+            "name": "Sequencer",
+            "description": "Video sequence editor",
+            "category": "Video Editing"
+        },
+        {
+            "name": "3D View",
+            "description": "3D viewport tools",
+            "category": "3D View"
         }
     ],
-    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.5/qpanel-assets-v2.1.5.zip",
-    "size": 27185
+    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.6/qpanel-assets-v2.1.6.zip",
+    "size": 0
 }

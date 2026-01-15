@@ -23,25 +23,40 @@ QPanels Assets is **NOT a standalone add-on**. It's a downloadable package that 
 cp -r QPanels-Assets/ "AppData/Roaming/Blender Foundation/Blender/<version>/scripts/addons/qpanel-assets/"
 ```
 
-## 📋 Available Panels
+## 📋 Available Panels (v2.1.6)
 
-### Outliner (v1.0.0)
-Collection Manager-inspired popup for managing Blender collections.
+### ✅ Properties Panels (11)
+- **Properties**: Main properties panel
+- **Armature Properties**: Armature data settings
+- **Camera Properties**: Camera configuration
+- **Curve Properties**: Curve and bezier settings
+- **Light Properties**: Light source properties
+- **Mesh Properties**: Mesh data settings
+- **Particle Properties**: Particle systems
+- **Physics Properties**: Physics simulations
+- **Render Properties**: Render settings
+- **Scene Properties**: Scene configuration
+- **Texture Properties**: Texture management
 
-**Features:**
-- Hierarchical collection tree with expand/collapse
-- 7 Render/Viewport toggles (RTO): Exclude, Select, Hide, Disable, Render, Holdout, Indirect
-- Advanced operations: Isolate (Alt), Toggle children (Ctrl), Activate all (Shift)
-- Object selection from collections
-- Active collection highlighting
+### ✅ Space Panels (7)
+- **Dope Sheet**: Animation timeline
+- **Graph Editor**: Animation curves and F-curves
+- **Image Editor**: UV/Image editing workspace
+- **NLA Editor**: Non-linear animation
+- **Node Editor**: Shader and geometry nodes
+- **Sequencer**: Video sequence editor
+- **3D View**: 3D viewport tools
+
+### ⚠️ Archived Panels
+- **Outliner** (v2.1.5): Archived due to non-functional state. See branch `archive/outliner-v2.1.5-non-functional` for reference.
+
+**Total Active Panels**: 18 functional panels
 
 **Usage:**
 1. Open Panel Selector (Alt+F2)
-2. Select "Outliner" → Assign to QPanel 1
-3. Press F1 (or your assigned key) → Outliner popup appears
-
-**Attribution:**
-Based on Collection Manager v2.24.11 by Ryan Inch (GPL-3.0)
+2. Select any panel from the list
+3. Assign to QPanel slot (F1-F12)
+4. Access instantly via keyboard shortcut
 
 ## 🔄 Updates
 
@@ -56,18 +71,26 @@ QPanels automatically checks for updates every 5 minutes.
 
 ```
 QPanels-Assets/
-├── __init__.py           # Entry point
-├── version.json          # Version tracking
-├── README.md             # This file
-└── panels/               # All panels
-    ├── __init__.py       # Central registration
-    └── outliner/         # Outliner panel
-        ├── __init__.py
-        ├── ui.py
-        ├── operators.py
-        ├── operator_utils.py
-        ├── internals.py
-        └── README.md
+├── __init__.py           # Entry point (deprecated - panels/ handles registration)
+├── version.json          # Version metadata
+├── CATEGORIES.md         # Panel categorization
+├── README.md             # Documentation
+└── panels/               # All panel modules
+    ├── __init__.py       # Auto-registration system
+    ├── properties.py
+    ├── properties_data_*.py (armature, camera, curve, light, mesh)
+    ├── properties_particle.py
+    ├── properties_physics.py
+    ├── properties_render.py
+    ├── properties_scene.py
+    ├── properties_texture.py
+    ├── space_dopesheet.py
+    ├── space_graph.py
+    ├── space_image.py
+    ├── space_nla.py
+    ├── space_node.py
+    ├── space_sequencer.py
+    └── view3d.py
 ```
 
 ## 🛠️ Development
@@ -96,8 +119,9 @@ Individual panels may include code from other GPL-compatible add-ons (with prope
 
 ## ⚖️ Credits
 
-**Outliner Panel:**
-- Based on Collection Manager v2.24.11 by Ryan Inch
+**v5.4.0 Panels Restoration:**
+- Original QPanels v5.4.0 panels by Lucas Caravella
+- Restored to QPanels-Assets v2.1.6 (2026-01-15)
 - Original: https://github.com/ryan-inch/Blender-Collection-Manager
 - License: GPL-3.0-or-later
 - Modifications: Removed QCD system, adapted for QPanels popup workflow
