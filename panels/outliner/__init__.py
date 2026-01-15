@@ -20,6 +20,10 @@ from . import operators
 from . import ui
 
 # Re-export all classes for registration
+from .internals import (
+    CMListCollection,  # Must be registered BEFORE CollectionManagerProperties
+)
+
 from .ui import (
     QPANEL_ASSET_OT_outliner,
     QPANEL_ASSET_UL_collection_tree,
@@ -42,6 +46,9 @@ from .operators import (
 )
 
 __all__ = [
+    # PropertyGroups (must be registered first)
+    "CMListCollection",
+    
     # Main popup operator
     "QPANEL_ASSET_OT_outliner",
     

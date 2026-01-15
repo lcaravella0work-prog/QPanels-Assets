@@ -9,7 +9,11 @@ import bpy
 from . import outliner
 
 # List of all classes to register
+# IMPORTANT: PropertyGroups using CollectionProperty must be registered AFTER their referenced types
 classes = (
+    # PropertyGroups (register first)
+    outliner.CMListCollection,  # Required by CollectionManagerProperties.cm_list_collection
+    
     # Outliner panel classes
     outliner.QPANEL_ASSET_OT_outliner,
     outliner.QPANEL_ASSET_OT_set_active_collection,
@@ -25,7 +29,7 @@ classes = (
     outliner.QPANEL_ASSET_OT_toggle_indirect,
     outliner.QPANEL_ASSET_OT_remove_collection,
     outliner.QPANEL_ASSET_UL_collection_tree,
-    outliner.CollectionManagerProperties,
+    outliner.CollectionManagerProperties,  # MUST be after CMListCollection
 )
 
 def register():
