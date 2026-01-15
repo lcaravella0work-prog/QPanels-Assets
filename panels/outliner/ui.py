@@ -17,6 +17,143 @@ from .internals import (
 )
 
 
+# =============== SHARED UI HELPER (FOR PANEL + OPERATOR) ===============
+
+def draw_collection_outliner_ui(layout, context, master_collection_prop=None):
+    """Shared UI rendering for both Panel and Operator
+    
+    Args:
+        layout: Blender UILayout to draw into
+        context: Blender context
+        master_collection_prop: StringProperty for master collection name (Operator only)
+    """
+    cm = context.scene.collection_manager
+    view_layer = context.view_layer
+    
+    # Update tree if view layer changed (class variable tracking)
+    if not hasattr(draw_collection_outliner_ui, 'last_view_layer'):
+        draw_collection_outliner_ui.last_view_layer = ""
+    
+    if view_layer.name != draw_collection_outliner_ui.last_view_layer:
+        update_collection_tree(context)
+        draw_collection_outliner_ui.last_view_layer = view_layer.name
+    
+    # === HEADER ===
+    header_row = layout.split(factor=0.5)
+    main = header_row.row()
+    view = header_row.row(align=True)
+    view.alignment = 'RIGHT'
+    
+    main.label(text="Collection Outliner")
+    
+    # View layer selector
+    view.prop(view_layer, "use", text="")
+    view.separator()
+    
+    window = context.window
+    scene = window.scene
+    view.template_search(
+        window, "view_layer",
+        scene, "view_layers",
+        new="scene.view_layer_add",
+        unlink="scene.view_layer_remove"
+    )
+    
+    layout.row().separator()
+    
+    # === EXPAND ALL BUTTON ===
+    button_row = layout.row()
+    button_row.alignment = 'LEFT'
+    
+    collapse_sec = button_row.row()
+    collapse_sec.enabled = False
+    
+    if len(internals.expanded) > 0:
+        text = "Collapse All Items"
+    else:
+        text = "Expand All Items"
+    
+    collapse_sec.operator("qpanels_assets.outliner_expand_all", text=text)
+    
+    # Enable button only if there are expandable collections
+    for laycol in internals.collection_tree:
+        if laycol["has_children"]:
+            collapse_sec.enabled = True
+            break
+    
+    layout.row().separator()
+    
+    # === MASTER COLLECTION ===
+    mc_box = layout.box()
+    master_row = mc_box.row(align=True)
+    
+    # Collection icon (active indicator)
+    highlight = (context.view_layer.active_layer_collection ==
+                context.view_layer.layer_collection)
+    
+    prop = master_row.operator("qpanels_assets.outliner_set_active_collection",
+                               text='', icon='GROUP', depress=highlight)
+    prop.is_master_collection = True
+    prop.collection_name = 'Scene Collection'
+    
+    master_row.separator()
+    
+    # Collection name
+    name_row = master_row.row(align=True)
+    name_field = name_row.row(align=True)
+    
+    # Use provided property if available (Operator), otherwise display static text (Panel)
+    if master_collection_prop is not None:
+        name_field.prop(master_collection_prop, "master_collection", text='')
+    else:
+        name_field.label(text="Scene Collection")
+    name_field.enabled = False
+    
+    # Select objects icon
+    collection = context.view_layer.layer_collection.collection
+    setsel = name_row.row(align=True)
+    icon = 'BLANK1'
+    some_selected = False
+    
+    if collection.objects:
+        all_selected = all(obj.select_get() for obj in collection.objects 
+                          if obj.visible_get() and not obj.hide_select)
+        some_selected = any(obj.select_get() for obj in collection.objects)
+        
+        if all_selected:
+            icon = 'KEYFRAME_HLT'
+        elif some_selected:
+            icon = 'KEYFRAME'
+        else:
+            icon = 'DOT'
+    else:
+        setsel.active = False
+    
+    prop = setsel.operator("qpanels_assets.outliner_select_collection_objects",
+                          text="", icon=icon, depress=some_selected)
+    prop.is_master_collection = True
+    prop.collection_name = 'Scene Collection'
+    
+    # === COLLECTION LIST ===
+    list_row = layout.row()
+    list_row.template_list(
+        "QPANEL_ASSET_UL_collection_tree",
+        "",
+        cm,
+        "cm_list_collection",
+        cm,
+        "cm_list_index",
+        rows=15,
+        sort_lock=True
+    )
+    
+    # Store selected objects for UIList
+    selected_objects = get_move_selection()
+    active_object = get_move_active()
+    QPANEL_ASSET_UL_collection_tree.selected_objects = selected_objects
+    QPANEL_ASSET_UL_collection_tree.active_object = active_object
+
+
 # =============== MAIN OPERATOR (POPUP) ===============
 
 class QPANEL_ASSET_OT_collection_outliner(Operator):
@@ -41,125 +178,8 @@ class QPANEL_ASSET_OT_collection_outliner(Operator):
         self.window_open = True
 
     def draw(self, context):
-        cls = QPANEL_ASSET_OT_collection_outliner
-        layout = self.layout
-        cm = context.scene.collection_manager
-        view_layer = context.view_layer
-
-        # Update tree if view layer changed
-        if view_layer.name != cls.last_view_layer:
-            update_collection_tree(context)
-            cls.last_view_layer = view_layer.name
-
-        # === HEADER ===
-        header_row = layout.split(factor=0.5)
-        main = header_row.row()
-        view = header_row.row(align=True)
-        view.alignment = 'RIGHT'
-
-        main.label(text="Collection Outliner")
-
-        # View layer selector
-        view.prop(view_layer, "use", text="")
-        view.separator()
-
-        window = context.window
-        scene = window.scene
-        view.template_search(
-            window, "view_layer",
-            scene, "view_layers",
-            new="scene.view_layer_add",
-            unlink="scene.view_layer_remove"
-        )
-
-        layout.row().separator()
-
-        # === EXPAND ALL BUTTON ===
-        button_row = layout.row()
-        button_row.alignment = 'LEFT'
-
-        collapse_sec = button_row.row()
-        collapse_sec.enabled = False
-
-        if len(internals.expanded) > 0:
-            text = "Collapse All Items"
-        else:
-            text = "Expand All Items"
-
-        collapse_sec.operator("qpanels_assets.outliner_expand_all", text=text)
-
-        # Enable button only if there are expandable collections
-        for laycol in internals.collection_tree:
-            if laycol["has_children"]:
-                collapse_sec.enabled = True
-                break
-
-        layout.row().separator()
-
-        # === MASTER COLLECTION ===
-        mc_box = layout.box()
-        master_row = mc_box.row(align=True)
-
-        # Collection icon (active indicator)
-        highlight = (context.view_layer.active_layer_collection ==
-                    context.view_layer.layer_collection)
-
-        prop = master_row.operator("qpanels_assets.outliner_set_active_collection",
-                                   text='', icon='GROUP', depress=highlight)
-        prop.is_master_collection = True
-        prop.collection_name = 'Scene Collection'
-
-        master_row.separator()
-
-        # Collection name
-        name_row = master_row.row(align=True)
-        name_field = name_row.row(align=True)
-        name_field.prop(self, "master_collection", text='')
-        name_field.enabled = False
-
-        # Select objects icon
-        collection = context.view_layer.layer_collection.collection
-        setsel = name_row.row(align=True)
-        icon = 'BLANK1'
-        some_selected = False
-
-        if collection.objects:
-            all_selected = all(obj.select_get() for obj in collection.objects 
-                              if obj.visible_get() and not obj.hide_select)
-            some_selected = any(obj.select_get() for obj in collection.objects)
-
-            if all_selected:
-                icon = 'KEYFRAME_HLT'
-            elif some_selected:
-                icon = 'KEYFRAME'
-            else:
-                icon = 'DOT'
-        else:
-            setsel.active = False
-
-        prop = setsel.operator("qpanels_assets.outliner_select_collection_objects",
-                              text="", icon=icon, depress=some_selected)
-        prop.is_master_collection = True
-        prop.collection_name = 'Scene Collection'
-
-        # === COLLECTION LIST ===
-        list_row = layout.row()
-        list_row.template_list(
-            "QPANEL_ASSET_UL_collection_tree",
-            "",
-            cm,
-            "cm_list_collection",
-            cm,
-            "cm_list_index",
-            rows=15,
-            sort_lock=True
-        )
-
-        # Store selected objects for UIList
-        selected_objects = get_move_selection()
-        active_object = get_move_active()
-        QPANEL_ASSET_UL_collection_tree.selected_objects = selected_objects
-        QPANEL_ASSET_UL_collection_tree.active_object = active_object
+        """Draw UI using shared helper function"""
+        draw_collection_outliner_ui(self.layout, context, master_collection_prop=self)
 
     def execute(self, context):
         return {'FINISHED'}
@@ -396,12 +416,8 @@ class QPANEL_ASSET_PT_outliner(Panel):
         return context.space_data.type == 'VIEW_3D'
     
     def draw(self, context):
-        """Delegate drawing to the Operator implementation"""
-        layout = self.layout
-        
-        # Reuse Operator's draw() method to avoid code duplication
-        op_instance = QPANEL_ASSET_OT_collection_outliner()
-        op_instance.draw(context)
+        """Draw UI using shared helper function"""
+        draw_collection_outliner_ui(self.layout, context)
 
 
 # =============== ALIAS FOR BACKWARDS COMPATIBILITY ===============

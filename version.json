@@ -1,9 +1,9 @@
 {
-    "version": "2.1.4",
+    "version": "2.1.5",
     "blender_min_version": "3.4.0",
     "qpanels_min_version": "6.1.19",
-    "sha256": "f5d723eb8d2527060a20fdc52e5503139427a7e939a4c4a29be0d34e1fd65a99",
-    "changelog": "FIX CRITIQUE v2.1.4: Ajout classe Panel (QPANEL_ASSET_PT_outliner) pour détection Panel Selector. L'Outliner était un Operator (OT) donc invisible pour QPanels - maintenant Panel wrapper (PT) délègue à Operator (OT) pour compatibilité maximale.",
+    "sha256": "a6732964d18abba828920d24f8f00cb156428b49cbe0ccdb3f2ac9a7e0204f72",
+    "changelog": "FIX CRITIQUE v2.1.5: Correction erreur bpy_struct instanciation. Extraction code UI dans fonction helper partagée draw_collection_outliner_ui() - Panel et Operator utilisent maintenant la même fonction (zéro duplication, architecture propre).",
     "panels": [
         {
             "name": "Outliner",
@@ -13,6 +13,6 @@
             "version": "1.0.1"
         }
     ],
-    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.4/qpanel-assets-v2.1.4.zip",
-    "size": 26230
+    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.5/qpanel-assets-v2.1.5.zip",
+    "size": 27185
 }

@@ -1,3 +1,42 @@
+## [2.1.5] - 2026-01-15
+
+### 🔥 Fixed - CRITICAL RUNTIME ERROR
+- **BUG**: `bpy_struct.__new__(struct): expected a single argument`
+  - Cause: Panel wrapper tried to instantiate Operator with `QPANEL_ASSET_OT_collection_outliner()`
+  - Blender classes (`Operator`, `Panel`) inherit from `bpy_struct` and cannot be instantiated directly
+  - Console: `[QPanels] Error drawing panel 'QPANEL_ASSET_PT_outliner'` (repeated on every draw)
+  - Impact: Panel appeared in selector but crashed when opened
+
+### ✅ Solution - Shared Helper Function Architecture
+- **NEW**: `draw_collection_outliner_ui(layout, context, master_collection_prop=None)`
+  - Extracts all UI code (150+ lines) into shared function
+  - Location: `panels/outliner/ui.py` (before Operator class)
+  - Parameters:
+    * `layout`: Blender UILayout to render into
+    * `context`: Blender context
+    * `master_collection_prop`: Optional - Operator instance for master collection name property
+
+### 🔧 Changed
+- **Operator.draw()**: Now calls `draw_collection_outliner_ui(self.layout, context, master_collection_prop=self)`
+  - 3 lines instead of 130+ lines
+  - Passes `self` for master collection property access
+- **Panel.draw()**: Now calls `draw_collection_outliner_ui(self.layout, context)`
+  - 2 lines instead of attempting Operator instantiation
+  - No master collection property (displays static "Scene Collection" label)
+
+### 🏗️ Architecture Benefits
+- ✅ **Zero Code Duplication**: UI code exists once, used by both Panel and Operator
+- ✅ **Proper Separation**: Helper function = pure UI logic, no bpy_struct instantiation
+- ✅ **Maintainability**: UI changes in one place affect both Panel and Operator
+- ✅ **Performance**: No attempted object creation on every draw call
+
+### 📊 Expected Result
+- **Before v2.1.5**: Panel visible but crashed with bpy_struct error
+- **After v2.1.5**: Panel opens correctly, displays collection tree, all operators functional
+- **Tested**: Works in all Blender areas (3D View, Image Editor, etc.)
+
+---
+
 ## [2.1.4] - 2026-01-15
 
 ### 🔥 Fixed - CRITICAL PANEL DETECTION
