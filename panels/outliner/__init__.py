@@ -28,16 +28,16 @@ from .ui import (
 
 from .operators import (
     QPANEL_ASSET_OT_set_active_collection,
-    QPANEL_ASSET_OT_expand_all_collections,
+    QPANEL_ASSET_OT_expand_all,
     QPANEL_ASSET_OT_expand_sublevel,
     QPANEL_ASSET_OT_select_collection_objects,
-    QPANEL_ASSET_OT_rto_exclude_collection,
-    QPANEL_ASSET_OT_rto_select_collection,
-    QPANEL_ASSET_OT_rto_hide_collection,
-    QPANEL_ASSET_OT_rto_disable_collection,
-    QPANEL_ASSET_OT_rto_render_collection,
-    QPANEL_ASSET_OT_rto_holdout_collection,
-    QPANEL_ASSET_OT_rto_indirect_collection,
+    QPANEL_ASSET_OT_toggle_exclude,
+    QPANEL_ASSET_OT_toggle_select,
+    QPANEL_ASSET_OT_toggle_hide,
+    QPANEL_ASSET_OT_toggle_disable,
+    QPANEL_ASSET_OT_toggle_render,
+    QPANEL_ASSET_OT_toggle_holdout,
+    QPANEL_ASSET_OT_toggle_indirect,
     QPANEL_ASSET_OT_remove_collection,
 )
 
@@ -53,17 +53,17 @@ __all__ = [
     
     # Collection operators
     "QPANEL_ASSET_OT_set_active_collection",
-    "QPANEL_ASSET_OT_expand_all_collections",
+    "QPANEL_ASSET_OT_expand_all",
     "QPANEL_ASSET_OT_expand_sublevel",
     "QPANEL_ASSET_OT_select_collection_objects",
     "QPANEL_ASSET_OT_remove_collection",
     
-    # RTO operators
-    "QPANEL_ASSET_OT_rto_exclude_collection",
-    "QPANEL_ASSET_OT_rto_select_collection",
-    "QPANEL_ASSET_OT_rto_hide_collection",
-    "QPANEL_ASSET_OT_rto_disable_collection",
-    "QPANEL_ASSET_OT_rto_render_collection",
-    "QPANEL_ASSET_OT_rto_holdout_collection",
-    "QPANEL_ASSET_OT_rto_indirect_collection",
+    # RTO operators (toggle_* are the real names)
+    "QPANEL_ASSET_OT_toggle_exclude",
+    "QPANEL_ASSET_OT_toggle_select",
+    "QPANEL_ASSET_OT_toggle_hide",
+    "QPANEL_ASSET_OT_toggle_disable",
+    "QPANEL_ASSET_OT_toggle_render",
+    "QPANEL_ASSET_OT_toggle_holdout",
+    "QPANEL_ASSET_OT_toggle_indirect",
 ]

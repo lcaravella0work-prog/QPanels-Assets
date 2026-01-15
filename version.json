@@ -1,9 +1,9 @@
 {
-    "version": "2.1.1",
+    "version": "2.1.2",
     "blender_min_version": "3.4.0",
     "qpanels_min_version": "6.1.19",
-    "sha256": "23d2ac089f4850ec6e1a2e6fc92deb7e7c9ed7fd85cd1099bdcbeadac7e7580d",
-    "changelog": "HOTFIX: Added class name alias to fix import error (QPANEL_ASSET_OT_outliner). Lowered min QPanels version to 6.1.19 for compatibility.",
+    "sha256": "3913492fb355de6741034baa5aff583f7b0c06b2edaeaf48ef3d47beee22433f",
+    "changelog": "HOTFIX v2.1.2: Fixed import errors - corrected operator class names (expand_all, toggle_* instead of rto_*). Fixed all ImportError issues.",
     "panels": [
         {
             "name": "Outliner",
@@ -13,6 +13,6 @@
             "version": "1.0.1"
         }
     ],
-    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.1/qpanel-assets-v2.1.1.zip",
-    "size": 24763
+    "download_url": "https://github.com/lcaravella0work-prog/QPanels-Assets/releases/download/v2.1.2/qpanel-assets-v2.1.2.zip",
+    "size": 24760
 }

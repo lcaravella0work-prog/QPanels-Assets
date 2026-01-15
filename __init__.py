@@ -9,7 +9,7 @@ It must be used with QPanels Core (v6.2.0+)
 bl_info = {
     "name": "QPanels Assets",
     "author": "QPanels Team",
-    "version": (1, 0, 0),
+    "version": (2, 1, 2),
     "blender": (3, 4, 0),
     "description": "Additional panels for QPanels",
     "category": "Interface",
